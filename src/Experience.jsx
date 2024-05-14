@@ -16,6 +16,8 @@ import {
 } from "@theatre/r3f";
 import { val } from "@theatre/core";
 
+import { config } from "./config";
+
 import Bracket from "./components/Bracket";
 import Logo from "./components/Logo";
 import LogoText from "./components/LogoText";
@@ -26,22 +28,17 @@ function CameraHelper() {
   return null;
 }
 
-export default function Experience() {
+export default function Experience({
+  onSectionChange,
+  onSectionAnimationComplete,
+}) {
   const sheet = useCurrentSheet();
   const scroll = useScroll();
   const cameraTargetRef = useRef();
   const [introComplete, setIntroComplete] = useState(false);
-  const [currentFrame, setCurrentFrame] = useState(null);
-  const [currentScreen, setCurrentScreen] = useState("Intro");
-  const [targetScreen, setTargetScreen] = useState("Screen1");
+  const [currentSection, setCurrentSection] = useState(null);
 
-  const isSetup = useRef(false);
-
-  const sections = {
-    Intro: [0, 1],
-    Section1: [2, 2 + 21 / 30],
-    Section2: [3, 4],
-  };
+  const [activeComponents, setActiveComponents] = useState([]);
 
   useEffect(() => {
     sheet.sequence
@@ -50,36 +47,82 @@ export default function Experience() {
       })
       .then(() => {
         setIntroComplete(true); // Set the state variable to true when the intro animation is complete
-        sheet.sequence.position = 2; // Set the position of the animation to the end of the intro
+        sheet.sequence.position = 1 + 10 / 30; // Set the position of the animation to the end of the intro
+        setCurrentSection(config.sections[0].name); // Set the current section to 'Intro'
+        console.log("Current section:", config.sections[0].name); // Log the 'Intro' sectio
       });
-
-    isSetup.current = true;
   }, [sheet.sequence]);
 
-  // Will run every frame
   useFrame(() => {
     if (introComplete) {
       const sequenceLength = val(sheet.sequence.pointer.length);
-      const position = 2 + scroll.offset * (sequenceLength - 2);
+      const position = 1 + scroll.offset * (sequenceLength - 1);
       sheet.sequence.position = position;
 
-      for (const [frame, range] of Object.entries(sections)) {
-        if (position >= range[0] && position < range[1]) {
-          setCurrentFrame(frame);
+      let newSection = null;
 
-          // Check if the scroll position has reached the end of the section
-          if (position >= range[1] - 0.01) {
-            // Pause the animation
+      for (const section of config.sections) {
+        if (position >= section.range[0] && position < section.range[1]) {
+          newSection = section;
+
+          if (position >= section.range[1] - 0.01) {
             sheet.sequence.pause();
+            onSectionFinish(newSection.name);
           } else {
-            // Resume the animation
             sheet.sequence.play();
           }
           break;
         }
       }
+
+      if (newSection && newSection.name !== currentSection) {
+        setCurrentSection(newSection.name);
+        console.log("Current section:", newSection.name);
+        onSectionChange(newSection.name);
+
+        if (
+          currentSection &&
+          position <
+            config.sections.find((section) => section.name === currentSection)
+              .range[0] +
+              0.1
+        ) {
+          // If scrolling back up, immediately pause the animation and update the section
+          sheet.sequence.pause();
+          onSectionFinish(newSection.name);
+        }
+      }
     }
   });
+
+  const onSectionFinish = (section) => {
+    // Update the activeComponents state based on the finished section
+    switch (section) {
+      case "Intro":
+        setActiveComponents([]);
+        break;
+      case "Section1":
+        setActiveComponents(["Section1"]);
+        break;
+      case "Section2":
+        setActiveComponents(["Section2"]);
+        break;
+      default:
+        setActiveComponents([]);
+    }
+
+    // Check if scrolling back up and hide the previous section earlier
+    if (
+      currentSection &&
+      section !== currentSection &&
+      config.sections.findIndex((s) => s.name === section) <
+        config.sections.findIndex((s) => s.name === currentSection)
+    ) {
+      setActiveComponents([]);
+    }
+
+    onSectionAnimationComplete(section);
+  };
 
   return (
     <>
@@ -135,6 +178,10 @@ export default function Experience() {
       <group rotation={[Math.PI * 0.49, 0, 0]} position={[0.04, -0.15, -1.5]}>
         <LogoText />
       </group>
+      {/* 
+      {activeComponents.includes("Section1") && <Section1 />}
+      {activeComponents.includes("Section2") && <Section2 />} */}
+
       {/* <OrbitControls /> */}
     </>
   );
