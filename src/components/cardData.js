@@ -1,0 +1,55 @@
+export const cardData = [
+  {
+    id: 1,
+    name: "Game Dev: Yr.2",
+    description:
+      "After an inspiring first year in game development, I'm diving deeper into complexities and exploring the boundaries of real-time interactive experiences.",
+    thumbnail_img: "https://example.com/images/project-alpha.jpg",
+    url: "https://example.com/projects/alpha",
+    is_published: true,
+    is_featured: false,
+    modelPath: "/models/gameBox.glb",
+  },
+  {
+    id: 2,
+    name: "Project Beta",
+    description: "Nulla vitae elit libero, a pharetra augue.",
+    thumbnail_img: "https://example.com/images/project-beta.jpg",
+    url: "https://example.com/projects/beta",
+    is_published: true,
+    is_featured: true,
+    modelPath: "/models/gameBox.glb",
+  },
+  {
+    id: 3,
+    name: "Project Gamma",
+    description: "Cras mattis consectetur purus sit amet fermentum.",
+    thumbnail_img: "https://example.com/images/project-gamma.jpg",
+    url: "",
+    is_published: false,
+    is_featured: false,
+    modelPath: "/models/gameBox.glb",
+  },
+  {
+    id: 4,
+    name: "Project Delta",
+    description:
+      "Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod.",
+    thumbnail_img: "https://example.com/images/project-delta.jpg",
+    url: "https://example.com/projects/delta",
+    is_published: true,
+    is_featured: false,
+    modelPath: "/models/gameBox.glb",
+  },
+  {
+    id: 5,
+    name: "Project Epsilon",
+    description:
+      "Praesent commodo cursus magna, vel scelerisque nisl consectetur.",
+    thumbnail_img: "https://example.com/images/project-epsilon.jpg",
+    url: "https://example.com/projects/epsilon",
+    is_published: true,
+    is_featured: false,
+    modelPath: "/models/gameBox.glb",
+  },
+];
